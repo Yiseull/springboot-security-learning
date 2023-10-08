@@ -14,11 +14,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-	private static final String SECRET_KEY = "EENY5W0eegTf1naQB2eDeyCLl5kRS2b8xa5c4qLdS0hmVjtbvo8tOyhPMcAmtPuQ";
+	private final JwtConfig jwtConfig;
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
@@ -38,7 +40,7 @@ public class JwtService {
 			.setClaims(extraClaims)
 			.setSubject(userDetails.getUsername())
 			.setIssuedAt(new Date(System.currentTimeMillis()))
-			.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+			.setExpiration(new Date(System.currentTimeMillis() + 1000 * jwtConfig.expirationSeconds()))
 			.signWith(getSignInKey(), SignatureAlgorithm.HS256)
 			.compact();
 	}
@@ -66,7 +68,7 @@ public class JwtService {
 	}
 
 	private Key getSignInKey() {
-		byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+		byte[] keyBytes = Decoders.BASE64.decode(jwtConfig.secretKey());
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 }
