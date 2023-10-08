@@ -9,6 +9,7 @@ import com.spring.securitylearning.config.JwtService;
 import com.spring.securitylearning.user.Role;
 import com.spring.securitylearning.user.User;
 import com.spring.securitylearning.user.UserRepository;
+import com.spring.securitylearning.user.UserSecurity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +31,7 @@ public class AuthenticationService {
 			.role(Role.USER)
 			.build();
 		userRepository.save(user);
-		String jwtToken = jwtService.generateToken(user);
+		String jwtToken = jwtService.generateToken(new UserSecurity(user));
 		return new AuthenticationResponse(jwtToken);
 	}
 
@@ -43,7 +44,7 @@ public class AuthenticationService {
 		);
 		User user = userRepository.findByEmail(request.email())
 			.orElseThrow();
-		String jwtToken = jwtService.generateToken(user);
+		String jwtToken = jwtService.generateToken(new UserSecurity(user));
 		return new AuthenticationResponse(jwtToken);
 	}
 }
